@@ -17,8 +17,10 @@ static void sys_invoke()
 {
     /* The standard way of system call is using the `ecall` instruction;
      * Switching to ecall is given to students as an exercise */
-    // *((int *)0x2000000) = 1;
     asm("ecall");
+
+    // *((int *)0x2000000) = 1;
+    
     // This while loop was necessary before because it meant that this function did not return
     // until the system call had been processed.
     // Now, it is not necessary because the ecall assembly instruction ensures that this function

@@ -18,6 +18,10 @@
 #define EXCP_ID_ECALL_U 8
 #define EXCP_ID_ECALL_M 11
 
+static void proc_yield();
+static void proc_syscall();
+static void (*kernel_entry)();
+
 void excp_entry(int id)
 {
     /* Student's code goes here (system call and memory exception). */
@@ -25,9 +29,12 @@ void excp_entry(int id)
     /* If id is for system call, handle the system call and return */
     if (id == EXCP_ID_ECALL_M || id == EXCP_ID_ECALL_U)
     {
+        kernel_entry = proc_syscall;
+
         /* Switch back to the user application stack */
-        int mepc = (int)proc_set[proc_curr_idx].mepc + 1;
+        int mepc = (int)proc_set[proc_curr_idx].mepc + 4;
         asm("csrw mepc, %0" ::"r"(mepc));
+        return;
     }
     else /* Otherwise, kill the process if curr_pid is a user application */
     {
@@ -35,6 +42,7 @@ void excp_entry(int id)
         {
             /* User process killed by ctrl+c interrupt */
             INFO("process %d killed by interrupt", curr_pid);
+            asm("csrw mepc, %0" ::"r"(0x800500C));
             return;
         }
     }
@@ -44,10 +52,6 @@ void excp_entry(int id)
 
 #define INTR_ID_SOFT 3
 #define INTR_ID_TIMER 7
-
-static void proc_yield();
-static void proc_syscall();
-static void (*kernel_entry)();
 
 int proc_curr_idx;
 struct process proc_set[MAX_NPROCESS];
