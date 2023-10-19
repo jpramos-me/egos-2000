@@ -32,7 +32,10 @@ void excp_entry(int id)
         kernel_entry = proc_syscall;
 
         /* Switch back to the user application stack */
-        int mepc = (int)proc_set[proc_curr_idx].mepc + 4;
+        int mepc;
+        asm("csrr %0, mepc" : "=r"(mepc));
+        // mepc = (int)proc_set[proc_curr_idx].mepc + 4;
+        mepc += 4;
         asm("csrw mepc, %0" ::"r"(mepc));
         return;
     }
