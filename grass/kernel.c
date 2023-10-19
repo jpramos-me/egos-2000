@@ -36,7 +36,7 @@ void excp_entry(int id)
         asm("csrr %0, mepc" : "=r"(mepc));
         // mepc = (int)proc_set[proc_curr_idx].mepc + 4;
         asm("csrw mepc, %0" ::"r"(mepc + 4));
-        asm("csrr %0, mtval" : "=r"(mtval));
+        // asm("csrr %0, mtval" : "=r"(mtval));
         return;
     }
     else /* Otherwise, kill the process if curr_pid is a user application */
