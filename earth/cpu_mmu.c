@@ -181,27 +181,30 @@ void mmu_init()
     earth->mmu_free = mmu_free;
     earth->mmu_alloc = mmu_alloc;
 
-    /* Setup a PMP region for the whole 4GB address space */
+    // /* Setup a PMP region for the whole 4GB address space */
     asm("csrw pmpaddr0, %0" : : "r"(0x40000000));
     asm("csrw pmpcfg0, %0" : : "r"(0xF));
 
     /* Student's code goes here (PMP memory protection). */
 
-    /* Setup PMP TOR region 0x00000000 - 0x20000000 as r/w/x */
-    asm("csrw pmpaddr0, %0" ::"r"(0x20000000));
-    asm("csrw pmpcfg0, %0" ::"r"(0xF));
+    // /* Setup PMP TOR region 0x00000000 - 0x20000000 as r/w/x */
+    // asm("csrw pmpaddr0, %0" ::"r"(0x20000000));
+    // asm("csrw pmpcfg0, %0" ::"r"(0xF));
 
-    /* Setup PMP NAPOT region 0x20400000 - 0x20800000 as r/-/x */
-    // pmpaddrx = 0x817ffff
-    asm("csrw pmpaddr0, %0" ::"r"(0x817FFFF));
+    // /* Setup PMP NAPOT region 0x20400000 - 0x20800000 as r/-/x */
+    // // pmpaddrx = 0x817ffff
+    // asm("csrw pmpaddr1, %0" ::"r"(0x817FFFF));
+    // asm("csrw pmpcfg1, %0" ::"r"(0xF));
 
-    /* Setup PMP NAPOT region 0x20800000 - 0x20C00000 as r/-/- */
-    // pmpaddrx = 0x827ffff
-    asm("csrw pmpaddr0, %0" ::"r"(0x827FFFF));
+    // /* Setup PMP NAPOT region 0x20800000 - 0x20C00000 as r/-/- */
+    // // pmpaddrx = 0x827ffff
+    // asm("csrw pmpaddr2, %0" ::"r"(0x827FFFF));
+    // asm("csrw pmpcfg2, %0" ::"r"(0xF));
 
-    /* Setup PMP NAPOT region 0x80000000 - 0x80004000 as r/w/- */
-    // pmpaddrx = 0x200007FF
-    asm("csrw pmpaddr0, %0" ::"r"(0x200007FF));
+    // /* Setup PMP NAPOT region 0x80000000 - 0x80004000 as r/w/- */
+    // // pmpaddrx = 0x200007FF
+    // asm("csrw pmpaddr3, %0" ::"r"(0x200007FF));
+    // asm("csrw pmpcfg3, %0" ::"r"(0xF));
 
     /* Student's code ends here. */
 

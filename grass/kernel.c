@@ -30,23 +30,20 @@ void excp_entry(int id)
     if (id == EXCP_ID_ECALL_M || id == EXCP_ID_ECALL_U)
     {
         kernel_entry = proc_syscall;
-
         /* Switch back to the user application stack */
-        int mepc, mtval;
+        int mepc;
         asm("csrr %0, mepc" : "=r"(mepc));
-        // mepc = (int)proc_set[proc_curr_idx].mepc + 4;
         asm("csrw mepc, %0" ::"r"(mepc + 4));
-        // asm("csrr %0, mtval" : "=r"(mtval));
-        return;
+
+        /* Switch to the kernel stack */
+        asm("mret");
     }
     else /* Otherwise, kill the process if curr_pid is a user application */
     {
         if (curr_pid >= GPID_USER_START)
         {
-            /* User process killed by ctrl+c interrupt */
-            INFO("process %d killed by interrupt", curr_pid);
+            INFO("process %d killed by exception", curr_pid);
             asm("csrw mepc, %0" ::"r"(0x800500C));
-            return;
         }
     }
     /* Student's code ends here. */
@@ -132,6 +129,12 @@ static void proc_yield()
     /* Modify mstatus.MPP to enter machine or user mode during mret
      * depending on whether curr_pid is a grass server or a user app
      */
+
+    int mstatus;
+    int M_MODE = 3, S_MODE = 1, U_MODE = 0;
+    int GRASS_MODE = (curr_pid >= GPID_USER_START) ? U_MODE : M_MODE;
+    asm("csrr %0, mstatus" : "=r"(mstatus));
+    asm("csrw mstatus, %0" ::"r"((mstatus & ~(3 << 11)) | (GRASS_MODE << 11) | (1 << 18)));
 
     /* Student's code ends here. */
 
