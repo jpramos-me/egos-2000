@@ -48,6 +48,7 @@ void excp_entry(int id)
         }
     }
     /* Student's code ends here. */
+    asm("mret");
     FATAL("excp_entry: kernel got exception %d", id);
 }
 
