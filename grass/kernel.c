@@ -30,7 +30,7 @@ void excp_entry(int id)
     if (id == EXCP_ID_ECALL_M || id == EXCP_ID_ECALL_U)
     {
         kernel_entry = proc_syscall;
-        proc_syscall();
+        ctx_entry();
         /* Switch back to the user application stack */
         int mepc;
         asm("csrr %0, mepc" : "=r"(mepc));
@@ -48,7 +48,6 @@ void excp_entry(int id)
         }
     }
     /* Student's code ends here. */
-    asm("mret");
     FATAL("excp_entry: kernel got exception %d", id);
 }
 
