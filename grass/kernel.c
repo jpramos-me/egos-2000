@@ -30,7 +30,9 @@ void excp_entry(int id)
     if (id == EXCP_ID_ECALL_M || id == EXCP_ID_ECALL_U)
     {
         kernel_entry = proc_syscall;
-        ctx_entry();
+
+        /* Switch to the kernel stack */
+        ctx_start(&proc_set[proc_curr_idx].sp, (void *)GRASS_STACK_TOP);
         /* Switch back to the user application stack */
         int mepc;
         asm("csrr %0, mepc" : "=r"(mepc));
