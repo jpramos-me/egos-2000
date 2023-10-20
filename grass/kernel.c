@@ -30,7 +30,7 @@ void excp_entry(int id)
     if (id == EXCP_ID_ECALL_M || id == EXCP_ID_ECALL_U)
     {
         kernel_entry = proc_syscall;
-        ctx_entry();
+        proc_yield();
 
         /* Switch back to the user application stack */
         int mepc;
