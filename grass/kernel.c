@@ -29,14 +29,15 @@ void excp_entry(int id)
     /* If id is for system call, handle the system call and return */
     if (id == EXCP_ID_ECALL_M || id == EXCP_ID_ECALL_U)
     {
-        kernel_entry = proc_syscall;
-        proc_yield();
 
         /* Switch back to the user application stack */
         int mepc;
         asm("csrr %0, mepc" : "=r"(mepc));
         asm("csrw mepc, %0" ::"r"(mepc + 4));
 
+        // proc_yield();
+        kernel_entry = proc_syscall;
+        ctx_start();
         /* Switch to the kernel stack */
         asm("mret");
     }
