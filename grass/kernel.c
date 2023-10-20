@@ -30,6 +30,7 @@ void excp_entry(int id)
     if (id == EXCP_ID_ECALL_M || id == EXCP_ID_ECALL_U)
     {
         kernel_entry = proc_syscall;
+        proc_syscall();
         /* Switch back to the user application stack */
         int mepc;
         asm("csrr %0, mepc" : "=r"(mepc));
