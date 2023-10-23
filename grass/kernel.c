@@ -17,47 +17,42 @@
 
 #define EXCP_ID_ECALL_U 8
 #define EXCP_ID_ECALL_M 11
+#define INTR_ID_SOFT 3
+#define INTR_ID_TIMER 7
+
+struct process proc_set[MAX_NPROCESS];
 
 static void proc_yield();
 static void proc_syscall();
 static void (*kernel_entry)();
+int proc_curr_idx;
 
 void excp_entry(int id)
 {
-    /* Student's code goes here (system call and memory exception). */
-
     /* If id is for system call, handle the system call and return */
     if (id == EXCP_ID_ECALL_M || id == EXCP_ID_ECALL_U)
     {
-
-        /* Switch back to the user application stack */
+        /* Increment user pointer */
         int mepc;
         asm("csrr %0, mepc" : "=r"(mepc));
         asm("csrw mepc, %0" ::"r"(mepc + 4));
 
-        // proc_yield();
+        // Set kernel_entry to proc_syscall;
         kernel_entry = proc_syscall;
-        ctx_start();
-        /* Switch to the kernel stack */
-        asm("mret");
+        ctx_start(&proc_set[proc_curr_idx].sp, (void *)GRASS_STACK_TOP); // Switch to the kernel stack
+        return;
     }
     else /* Otherwise, kill the process if curr_pid is a user application */
     {
         if (curr_pid >= GPID_USER_START)
         {
-            INFO("process %d killed by exception", curr_pid);
+            INFO("process %d killed by exception %d", curr_pid, id);
             asm("csrw mepc, %0" ::"r"(0x800500C));
+            asm("mret");
         }
     }
-    /* Student's code ends here. */
     FATAL("excp_entry: kernel got exception %d", id);
 }
-
-#define INTR_ID_SOFT 3
-#define INTR_ID_TIMER 7
-
-int proc_curr_idx;
-struct process proc_set[MAX_NPROCESS];
 
 void intr_entry(int id)
 {
@@ -132,10 +127,10 @@ static void proc_yield()
     /* Modify mstatus.MPP to enter machine or user mode during mret
      * depending on whether curr_pid is a grass server or a user app
      */
+    int M_MODE = 3, U_MODE = 0;
+    int GRASS_MODE = (curr_pid >= GPID_USER_START) ?U_MODE:M_MODE;
 
     int mstatus;
-    int M_MODE = 3, S_MODE = 1, U_MODE = 0;
-    int GRASS_MODE = (curr_pid >= GPID_USER_START) ? U_MODE : M_MODE;
     asm("csrr %0, mstatus" : "=r"(mstatus));
     asm("csrw mstatus, %0" ::"r"((mstatus & ~(3 << 11)) | (GRASS_MODE << 11) | (1 << 18)));
 

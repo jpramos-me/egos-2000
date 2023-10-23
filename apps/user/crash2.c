@@ -14,10 +14,12 @@
 
 int main()
 {
-    memset((void *)FRAME_CACHE_START, 0, FRAME_CACHE_END - FRAME_CACHE_START);
+    // memset((void *)FRAME_CACHE_START, 0, FRAME_CACHE_END - FRAME_CACHE_START);
+    
     // The section in memory reserved for MMU cache of physical frames
     // for suspended grass processes (0x8000_4000 - 0x8001_FFFF) is not protected
-    char *heap_overflow = memset(1, 0x80004000, 0x8001FFFF);
+    memset((void *)0x20000001, 0, 0x203FFFFF-0x20000001);
+
     /* If the OS protects memory correctly,
      * this memset should trigger an exception, killing this application;
      * Otherwise, the following message will be printed
